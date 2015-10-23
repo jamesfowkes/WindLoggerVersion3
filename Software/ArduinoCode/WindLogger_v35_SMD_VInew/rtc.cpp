@@ -39,7 +39,7 @@
  */
 
 static Rtc_Pcf8563 s_rtc;
-static int s_interrupt_pin;
+static uint8_t s_interrupt_pin;
 
 /* 
  * Private Functions

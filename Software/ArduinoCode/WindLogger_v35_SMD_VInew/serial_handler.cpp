@@ -24,8 +24,8 @@
  */
 
 static char s_next_byte;
-static char s_strBuffer[128];
-static int s_index = 0;
+static char s_strBuffer[64];
+static uint8_t s_index = 0;
 
 const char reference[] PROGMEM = "The ref is:";
 

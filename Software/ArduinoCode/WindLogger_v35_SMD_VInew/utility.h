@@ -1,10 +1,25 @@
 #ifndef _UTILITY_H_
 #define _UTILITY_H_
 
-// Converts a decimal to BCD (binary coded decimal)
+/*
+ * Defines and Typedefs
+ */
+
+#define N_ELE(x) (sizeof(x)/sizeof(x[0]))
+
+/*
+ * Public Function Prototypes
+ */
+
 byte DecToBcd(byte value);
 char* PStringToRAM(const PROGMEM char* str);
 
+void to_lower_str(char * pStr);
+char * skip_spaces_rev(const char * line);
+char * skip_spaces(const char * line);
+uint32_t strncpy_safe(char * dst, char const * src, uint32_t max);
+bool split_and_strip_whitespace(char * toSplit, char splitChar, char ** pStartOnLeft, char ** pEndOnLeft, char ** pStartOnRight, char ** pEndOnRight);
+bool string_is_whitespace(char const * str);
 
 /*
  * FixedLengthAccumulator

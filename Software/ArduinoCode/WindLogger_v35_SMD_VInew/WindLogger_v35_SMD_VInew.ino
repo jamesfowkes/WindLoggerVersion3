@@ -152,7 +152,7 @@
 #define CALIBRATE_PIN 6   // This controls if we are in serial calibrate mode or not
 
 #define FLASH_PERIOD (10)
-static int s_aliveFlashCounter = 0;  // This is used to count to give flash every 10 seconds
+static uint8_t s_aliveFlashCounter = 0;  // This is used to count to give flash every 10 seconds
 static bool s_debugFlag = false;    // Set this if you want to be in debugging mode.
 static bool s_error = false;
 static bool s_calibrate_mode = false;

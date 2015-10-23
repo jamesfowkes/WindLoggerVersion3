@@ -14,6 +14,7 @@
 
 /************ Application Libraries*****************************/
 #include "utility.h"
+#include "config.h"
 #include "battery.h"
 #include "external_volts_amps.h"
 #include "wind.h"
@@ -39,10 +40,10 @@ static long s_dataCounter = 0;  // This holds the number of seconds since the la
 static long s_sampleTime = 2;  // This is the time between samples for the DAQ
 
 static volatile bool s_writePending = false;  // A flag to tell the code when to write data
-static char s_last_used_date[16];
+static char s_last_used_date[9];
 
 // The other SD card pins (D11,D12,D13) are all set within s_SD.h
-static int s_lastCardDetect = LOW;  // This is the flag for the old reading of the card detect
+static uint8_t s_lastCardDetect = LOW;  // This is the flag for the old reading of the card detect
 
 // SD file system object and file
 static SdFat s_sd;
@@ -75,10 +76,10 @@ const char s_pstr_file_already_exists[] PROGMEM = "File already exists";
  */
 
 /*
- * writeDataString
+ * write_data_string
  * Opens the current file for writing and appends the current data string
  */
-static void writeDataString()
+static void write_data_string()
 {
     s_datafile.open(s_filename, O_RDWR | O_CREAT | O_AT_END);    // Open the correct file
     // if the file is available, write to it:
@@ -137,6 +138,8 @@ void SD_Setup()
   		Serial.println(PStringToRAM(s_pstr_initialised));
   	}
   }
+
+  CFG_read_channels_from_sd(&s_sd);
 }
 
 /*
@@ -280,7 +283,8 @@ void SD_CreateFileForToday()
   if(strcmp(current_date, s_last_used_date) != 0)
   {
      // If date has changed then create a new file
-     memcpy(s_last_used_date, current_date, 10);
+     //memcpy(s_last_used_date, current_date, 10);
+     
      SD_CreateFileForToday();  // Create the corrct filename (from date)
   }    
 
@@ -308,33 +312,6 @@ void SD_CreateFileForToday()
   s_accumulator.writeChar(comma);
   VA_WriteExternalCurrentToBuffer(&s_accumulator);
 
-  /*
-  int index;
-  s_dataString[index++] = s_deviceID[0];
-  s_dataString[index++] = s_deviceID[1];
-  s_dataString[index++] = comma;
-  memcpy(&s_dataString[index], current_date, 10); index += 10; // Date is exactly 10 chars long
-  s_dataString[index++] = comma;
-  memcpy(&s_dataString[index], current_time, 8); index += 8; // Time is exactly 8 chars long
-  s_dataString[index++] = comma;
-  index += WIND_WritePulseCountToBuffer(0, &s_dataString[index]);
-  s_dataString[index++] = comma;
-  index += WIND_WritePulseCountToBuffer(1, &s_dataString[index]);
-  s_dataString[index++] = comma;
-  index += WIND_WriteDirectionToBuffer(&s_dataString[index]);
-  s_dataString[index++] = comma;
-  #if READ_TEMPERATURE == 1
-  index += TEMP_WriteTemperatureToBuffer(&s_dataString[index]);
-  s_dataString[index++] = comma;
-  #endif
-  index += BATT_WriteVoltageToBuffer(&s_dataString[index]);
-  s_dataString[index++] = comma;
-  index += VA_WriteExternalVoltageToBuffer(&s_dataString[index]);
-  s_dataString[index++] = comma;
-  index += VA_WriteExternalCurrentToBuffer(&s_dataString[index]);
-  s_dataString[index++] = '\0';
-  */
-
   // ************** Write it to the SD card *************
   // This depends upon the card detect.
   // If card is there then write to the file
@@ -352,7 +329,7 @@ void SD_CreateFileForToday()
   {
       //Ensure that there is a card present)
       // We then write the data to the SD card here:
-    writeDataString();
+    write_data_string();
   }
   else
   {
