@@ -37,11 +37,18 @@ static void * s_channels[MAX_CHANNELS];
 static uint8_t s_valuesSetBitFields[MAX_CHANNELS];
 
 static FIELD_TYPE s_fieldTypes[MAX_CHANNELS];
-static const char * s_channelTypes[] = {
-    "voltage",
-    "current",
-    "temperature_c"
+
+static const char s_voltage_channel_name[] PROGMEM = "voltage";
+static const char s_current_channel_name[] PROGMEM = "current";
+static const char s_temperature_c_channel_name[] PROGMEM = "temperature_c";
+
+static const char * const s_channelTypes[] PROGMEM = {
+    s_voltage_channel_name,
+    s_current_channel_name,
+    s_temperature_c_channel_name    
 };
+
+static const char s_config_filename[] = "channels.conf";
 
 /*
  * Private Functions
@@ -61,7 +68,14 @@ static bool try_parse_as_voltage_setting(uint8_t ch, char * pSettingName, char *
 
     bool settingParsedAsFloat = parse_setting_as_float(&setting, pValueString);
 
-    if (0 == strncmp(pSettingName, "mvperbit", 8))
+    static const char s_voltage_setting_mvperbit[] PROGMEM = "mvperbit";
+    static const char s_voltage_setting_r1[] PROGMEM = "r1";
+    static const char s_voltage_setting_r2[] PROGMEM = "r2";
+
+    char * voltage_setting;
+    
+    voltage_setting = PStringToRAM(s_voltage_setting_mvperbit);
+    if (0 == strncmp(pSettingName, voltage_setting, 8))
     {
         if (!settingParsedAsFloat) { return false; }
         ((VOLTAGECHANNEL*)s_channels[ch])->mvPerBit = setting;
@@ -69,7 +83,8 @@ static bool try_parse_as_voltage_setting(uint8_t ch, char * pSettingName, char *
         return true;
     }
 
-    if (0 == strncmp(pSettingName, "r1", 2))
+    voltage_setting = PStringToRAM(s_voltage_setting_mvperbit);
+    if (0 == strncmp(pSettingName, s_voltage_setting_r1, 2))
     {
         if (!settingParsedAsFloat) { return false; }
         ((VOLTAGECHANNEL*)s_channels[ch])->R1 = setting;
@@ -77,7 +92,8 @@ static bool try_parse_as_voltage_setting(uint8_t ch, char * pSettingName, char *
         return true;
     }
 
-    if (0 == strncmp(pSettingName, "r2", 2))
+    voltage_setting = PStringToRAM(s_voltage_setting_mvperbit);
+    if (0 == strncmp(pSettingName, s_voltage_setting_r2, 2))
     {
         if (!settingParsedAsFloat) { return false; }
         ((VOLTAGECHANNEL*)s_channels[ch])->R2 = setting;
@@ -94,7 +110,14 @@ static bool try_parse_as_current_setting(uint8_t ch, char * pSettingName, char *
     
     bool settingParsedAsFloat = parse_setting_as_float(&setting, pValueString);
     
-    if (0 == strncmp(pSettingName, "mvperbit", 8))
+    static const char s_current_setting_mvperbit[] PROGMEM = "mvperbit";
+    static const char s_current_setting_offset[] PROGMEM = "offset";
+    static const char s_current_setting_mvperamp[] PROGMEM = "mvperamp";
+
+    char * current_setting;
+
+    current_setting = PStringToRAM(s_current_setting_mvperbit);
+    if (0 == strncmp(pSettingName, current_setting, 8))
     {
         if (!settingParsedAsFloat) { return false; }
         ((CURRENTCHANNEL*)s_channels[ch])->mvPerBit = setting;
@@ -102,7 +125,8 @@ static bool try_parse_as_current_setting(uint8_t ch, char * pSettingName, char *
         return true;
     }
     
-    if (0 == strncmp(pSettingName, "offset", 6))
+    current_setting = PStringToRAM(s_current_setting_offset);
+    if (0 == strncmp(pSettingName, current_setting, 6))
     {
         if (!settingParsedAsFloat) { return false; }
         ((CURRENTCHANNEL*)s_channels[ch])->offset = setting;
@@ -110,7 +134,8 @@ static bool try_parse_as_current_setting(uint8_t ch, char * pSettingName, char *
         return true;
     }
 
-    if (0 == strncmp(pSettingName, "mvperamp", 8))
+    current_setting = PStringToRAM(s_current_setting_mvperamp);
+    if (0 == strncmp(pSettingName, current_setting, 8))
     {
         if (!settingParsedAsFloat) { return false; }
         ((CURRENTCHANNEL*)s_channels[ch])->mvPerAmp = setting;
@@ -127,7 +152,16 @@ static bool try_parse_as_thermsitor_setting(uint8_t ch, char * pSettingName, cha
     
     bool settingParsedAsFloat = parse_setting_as_float(&setting, pValueString);
     
-    if (0 == strncmp(pSettingName, "maxadc", 6))
+    static const char s_thermistor_setting_mvperbit[] PROGMEM = "maxadc";
+    static const char s_thermistor_setting_b[] PROGMEM = "b";
+    static const char s_thermistor_setting_r25[] PROGMEM = "r25";
+    static const char s_thermistor_setting_otherr[] PROGMEM = "otherr";
+    static const char s_thermistor_setting_highside[] PROGMEM = "highside";
+
+    char * thermistor_setting;
+
+    thermistor_setting = PStringToRAM(s_thermistor_setting_mvperbit);
+    if (0 == strncmp(pSettingName, thermistor_setting, 6))
     {
         if (!settingParsedAsFloat) { return false; }
         ((THERMISTORCHANNEL*)s_channels[ch])->maxADC = setting;
@@ -135,7 +169,8 @@ static bool try_parse_as_thermsitor_setting(uint8_t ch, char * pSettingName, cha
         return true;
     }
     
-    if (0 == strncmp(pSettingName, "b", 1))
+    thermistor_setting = PStringToRAM(s_thermistor_setting_b);
+    if (0 == strncmp(pSettingName, thermistor_setting, 1))
     {
         if (!settingParsedAsFloat) { return false; }
         ((THERMISTORCHANNEL*)s_channels[ch])->B = setting;
@@ -143,15 +178,17 @@ static bool try_parse_as_thermsitor_setting(uint8_t ch, char * pSettingName, cha
         return true;
     }
 
-    if (0 == strncmp(pSettingName, "r25", 3))
+    thermistor_setting = PStringToRAM(s_thermistor_setting_r25);
+    if (0 == strncmp(pSettingName, thermistor_setting, 3))
     {
         if (!settingParsedAsFloat) { return false; }
         ((THERMISTORCHANNEL*)s_channels[ch])->R25 = setting;
         s_valuesSetBitFields[ch] |= 0x04;
         return true;
     }
-
-    if (0 == strncmp(pSettingName, "otherr", 6))
+    
+    thermistor_setting = PStringToRAM(s_thermistor_setting_otherr);
+    if (0 == strncmp(pSettingName, thermistor_setting, 6))
     {
         if (!settingParsedAsFloat) { return false; }
         ((THERMISTORCHANNEL*)s_channels[ch])->otherR = setting;
@@ -159,7 +196,8 @@ static bool try_parse_as_thermsitor_setting(uint8_t ch, char * pSettingName, cha
         return true;
     }
 
-    if (0 == strncmp(pSettingName, "highside", 8))
+    thermistor_setting = PStringToRAM(s_thermistor_setting_highside);
+    if (0 == strncmp(pSettingName, thermistor_setting, 8))
     {
         ((THERMISTORCHANNEL*)s_channels[ch])->highside = (*pValueString != '0');
         s_valuesSetBitFields[ch] |= 0x10;
@@ -194,12 +232,14 @@ static FIELD_TYPE parse_setting_as_type(char const * const setting)
 {
     uint8_t i;
     char lcaseSetting[31];
+
     strncpy_safe(lcaseSetting, setting, 31);
     to_lower_str(lcaseSetting);
 
     for (i = 0; i < N_ELE(s_channelTypes); ++i)
     {
-        if (0 == strncmp(lcaseSetting, s_channelTypes[i], strlen(s_channelTypes[i])))
+        char * channel_type = PStringToRAM(s_channelTypes[i]);
+        if (0 == strncmp(lcaseSetting, channel_type, strlen(channel_type)))
         {
             return (FIELD_TYPE)i;
         }
@@ -311,12 +351,14 @@ static bool process_config_line(char * setting)
 /*
  * Public Functions
  */
+
 bool CFG_read_channels_from_sd(SdFat * sd)
 {
 	char buffer[MAX_LINE_LENGTH];
-	char filename[] = "channels.conf";
 	int count;
 	bool success = true;
+
+    char * filename = PStringToRAM(s_config_filename);
 
 	if (!SD_CardIsPresent()) { return false;}
 
