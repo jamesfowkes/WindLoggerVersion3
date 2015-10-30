@@ -12,7 +12,7 @@
  */
 
 byte DecToBcd(byte value);
-char* PStringToRAM(const PROGMEM char* str);
+char* PStringToRAM(const char* str);
 
 void to_lower_str(char * pStr);
 char * skip_spaces_rev(const char * line);

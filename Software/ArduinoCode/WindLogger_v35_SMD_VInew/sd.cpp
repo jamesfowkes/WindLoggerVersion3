@@ -237,8 +237,8 @@ void SD_CreateFileForToday()
 
  void SD_WriteData()
  {
-  char * current_date;
-  char * current_time;
+  const char * current_date;
+  const char * current_time;
 
   // *********** WIND SPEED ******************************************
   // Want to get the number of pulses and average into the sample time

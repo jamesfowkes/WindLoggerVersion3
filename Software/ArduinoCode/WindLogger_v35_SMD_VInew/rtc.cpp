@@ -140,7 +140,7 @@ void RTC_DisableInterrupt()
  * RTC_GetDate
  * Updates the date string (in specified format) and returns a pointer to it
  */
-char * RTC_GetDate(int format)
+const char * RTC_GetDate(int format)
 {
 	return s_rtc.formatDate(format);
 }
@@ -149,7 +149,7 @@ char * RTC_GetDate(int format)
  * RTC_GetTime
  * Updates the time string and returns a pointer to it
  */
-char * RTC_GetTime()
+const char * RTC_GetTime()
 {
 	return s_rtc.formatTime();
 }
